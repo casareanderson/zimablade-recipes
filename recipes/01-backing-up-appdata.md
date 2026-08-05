@@ -97,6 +97,37 @@ You'll get `/DATA/Backups/appdata-YYYYMMDD_HHMMSS.tar.gz`. Expect a few minutes 
 
 ---
 
+## The other half: how to rebuild the services
+
+Backing up `AppData` saves your *data*. It does not save the *definitions* — the compose files that say which image, which ports, which volumes, which environment each service uses.
+
+On CasaOS those live **outside** AppData:
+
+```console
+$ readlink -f /DATA/.casaos/apps
+/DATA/.casaos/apps          # NOT under /DATA/AppData
+```
+
+Restore from an AppData-only backup and you have every byte of your photo library and no idea how the stack was assembled. That's a bad afternoon.
+
+`backup-appdata.sh` writes a second archive for exactly this:
+
+```console
+RESULT ARCHIVE=/DATA/Backups/appdata-20260805_223000.tar.gz  SIZE=1.4G
+RESULT CONFIG=/DATA/Backups/appconfig-20260805_223000.tar.gz SIZE=52K
+```
+
+**52 KB**, holding all 8 compose files. The source directory is 340 MB, but almost all of that is old manual database dumps and `.bak` copies parked next to the configs — excluded by default, because they aren't configuration.
+
+> **Treat that small archive as sensitive.** Compose files carry environment variables, and environment variables carry passwords — the Immich one here has three such lines. It's small enough to tuck anywhere, which is exactly why people are careless with it. Never commit it to a repo.
+
+Restore it first, then the data:
+
+```bash
+tar -xzf appconfig-20260805_223000.tar.gz -C /
+docker compose -f /DATA/.casaos/apps/immich/docker-compose.yml up -d
+```
+
 ## Then: check it
 
 ### 1. Does it exist?

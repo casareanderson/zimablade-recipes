@@ -22,6 +22,15 @@ SRC_DIR="${SRC_DIR:-/DATA/AppData}"                  # what to back up
 DEST_DIR="${DEST_DIR:-/DATA/Backups}"                # where archives go
 RETENTION_DAYS="${RETENTION_DAYS:-30}"               # delete archives older than this
 EXCLUDES="${EXCLUDES:---exclude=*/cache --exclude=*/logs}"
+
+# The app DEFINITIONS — the compose files that say which images, ports, volumes
+# and environment each service uses. On CasaOS these live OUTSIDE AppData, so a
+# backup of AppData alone leaves you with all your data and no way to rebuild
+# the services that read it. Tiny to store, painful to lose.
+CONFIG_DIRS="${CONFIG_DIRS:-/DATA/.casaos/apps}"
+# Old manual database dumps and compose backups get parked in these directories
+# and are hundreds of megabytes. They are not configuration; leave them out.
+CONFIG_EXCLUDES="${CONFIG_EXCLUDES:---exclude=*.dump --exclude=*.sql --exclude=*.tar.gz --exclude=*.bak*}"
 DRY_RUN=0
 [ "${1:-}" = "--dry-run" ] && DRY_RUN=1
 
@@ -48,6 +57,16 @@ if [ "$DRY_RUN" = "1" ]; then
     say "  destination:$DEST_DIR"
     say "  retention:  ${RETENTION_DAYS} days"
     say "  excludes:   $EXCLUDES"
+    say
+    say "App definitions (a second, tiny archive — the compose files that say how"
+    say "to rebuild each service):"
+    for d in $CONFIG_DIRS; do
+        if [ -d "$d" ]; then
+            say "  $d  ($(du -sh "$d" 2>/dev/null | cut -f1) on disk, before excludes)"
+        else
+            say "  $d  (not present — skipped)"
+        fi
+    done
     say
     say "Directories the current user CANNOT read (these are the ones a plain"
     say "tar would leave out of the archive):"
@@ -90,7 +109,26 @@ docker run --rm --privileged --pid=host -v /:/host alpine \
         find \"\$DEST\" -name 'appdata-*.tar.gz' -mtime +$RETENTION_DAYS -delete
 
         echo \"RESULT ARCHIVE=\$ARCHIVE SIZE=\${SIZE:-?} RC=\$RC\"
-        [ \"\$RC\" -le 1 ] && exit 0 || exit \"\$RC\"
+
+        # --- app definitions: separate, tiny, and the thing you need FIRST ---
+        CFG_RC=0
+        CFG_ARCHIVE=\"\$DEST/appconfig-\$STAMP.tar.gz\"
+        CFG_PRESENT=\"\"
+        for d in $CONFIG_DIRS; do [ -d \"\$d\" ] && CFG_PRESENT=\"\$CFG_PRESENT \$d\"; done
+        if [ -n \"\$CFG_PRESENT\" ]; then
+            tar --warning=no-file-changed $CONFIG_EXCLUDES \
+                -czf \"\$CFG_ARCHIVE\" \$CFG_PRESENT 2>/dev/null
+            CFG_RC=\$?
+            CFG_SIZE=\$(du -h \"\$CFG_ARCHIVE\" 2>/dev/null | cut -f1)
+            find \"\$DEST\" -name 'appconfig-*.tar.gz' -mtime +$RETENTION_DAYS -delete
+            echo \"RESULT CONFIG=\$CFG_ARCHIVE SIZE=\${CFG_SIZE:-?} RC=\$CFG_RC\"
+        else
+            echo \"RESULT CONFIG=none (no app-definition directories found)\"
+        fi
+
+        # Report the worse of the two outcomes.
+        WORST=\$RC; [ \"\$CFG_RC\" -gt \"\$WORST\" ] && WORST=\$CFG_RC
+        [ \"\$WORST\" -le 1 ] && exit 0 || exit \"\$WORST\"
     "
 RC=$?
 

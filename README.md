@@ -24,6 +24,10 @@ Then **[01 · Backing up AppData properly](recipes/01-backing-up-appdata.md)**, 
 
 More recipes are being added as each one is verified on the machine rather than written from memory.
 
+### Related
+
+**[Putting a GPU in a ZimaBlade](https://github.com/casareanderson/zimablade-gpu-immich)** — a companion field report on the PCIe slot's real limits (x4, 25 W, no Above-4G decoding), the driver that breaks pre-Turing cards on ZimaOS, and how to diagnose a card that works for eight hours and then falls off the bus. Read it *before* buying a card.
+
 ## The scripts
 
 | | |

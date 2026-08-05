@@ -20,6 +20,7 @@ Then **[01 · Backing up AppData properly](recipes/01-backing-up-appdata.md)**, 
 |---|---|---|
 | **[00 · Borrowing root from Docker](recipes/00-borrowing-root-from-docker.md)** | You need root on a box where `sudo` wants a password you don't have | A privileged container with the host filesystem mounted *is* root — powerful, and worth understanding before you paste it |
 | **[01 · Backing up AppData properly](recipes/01-backing-up-appdata.md)** | Your app data — Immich's database, your certificates, your tokens | A plain `tar` exits 2 and **still writes the archive**. It looks fine and your certs aren't in it |
+| **[02 · Offsite backup for a photo library](recipes/02-offsite-photo-backup.md)** | Getting 800 GB of irreplaceable photos out of the house, affordably | `rclone sync` mirrors deletions — lose a photo locally and your backup deletes it too. And half your library is regenerable |
 
 More recipes are being added as each one is verified on the machine rather than written from memory.
 
@@ -30,6 +31,7 @@ More recipes are being added as each one is verified on the machine rather than 
 | [`scripts/backup-appdata.sh`](scripts/backup-appdata.sh) | Complete AppData backup, with `--dry-run` to show what a plain tar would miss |
 | [`scripts/verify-backup.sh`](scripts/verify-backup.sh) | Proves an archive is complete and restorable — four checks, including one that only a privileged backup can pass |
 | [`scripts/remote-trigger.sh`](scripts/remote-trigger.sh) | Runs the backup from another machine over SSH, so nothing is installed on the Zima |
+| [`scripts/photo-offsite-backup.sh`](scripts/photo-offsite-backup.sh) | Incremental offsite copy of an Immich library — originals only, guarded database dump, `--dry-run` supported |
 
 All plain bash, commented, no dependencies beyond what ZimaOS ships. Read them before running them — including these.
 

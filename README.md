@@ -67,3 +67,14 @@ That one bit me while writing recipe 01: my first version of the "what would a p
 ZimaBlade 7700 (Intel N3350) · ZimaOS · GNU tar 1.35 · BusyBox find · Docker, running the usual homelab mix: a photo library, a reverse proxy, an identity provider and a document stack.
 
 Recipes should apply to any ZimaOS or CasaOS box. Where something is specific to this hardware, it says so.
+
+---
+
+## The packaged version
+
+The same recipes are also available as a single download, without cloning anything.
+It is **pay what you want, including nothing**:
+
+**[ZimaBlade Server Recipes →](https://asareanderson.gumroad.com/l/ynthjem)**
+
+Everything in this repo stays free and stays here.

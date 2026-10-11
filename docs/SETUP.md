@@ -9,6 +9,11 @@ The practice run is marked as tested: it runs on a fresh Ubuntu runner every wee
 container) and the verify script are proven on every change. CI has no Zima, so the steps on the Zima itself aren't
 marked.
 
+
+![What a passing practice run looks like (excerpt from `setup-check` on 11 October 2026): the plain tar misses the root-only folder, the backup gets it, and the verify script proves it](setup-run.png)
+
+*What a passing practice run looks like (excerpt from `setup-check` on 11 October 2026): the plain tar misses the root-only folder, the backup gets it, and the verify script proves it.*
+
 ## What you need
 
 - A ZimaBlade, ZimaBoard or another ZimaOS / CasaOS box, with SSH access as a user in the `docker` group (the default

@@ -157,4 +157,4 @@ Rehearse steps 1 and 2 with a handful of files **before** you need them.
 
 *Verified on a ZimaBlade 7700: the sizes, the nightly counts and the storage layout were read off the running machine.*
 
-Back to the [recipe index](../README.md) · previous: [01 · Backing up AppData properly](01-backing-up-appdata.md)
+Back to the [recipe index](../README.md) · previous: [01 · Backing up AppData properly](01-backing-up-appdata.md) · next: [03 · Apps CasaOS can't eat](03-apps-casaos-cant-eat.md)

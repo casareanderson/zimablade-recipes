@@ -1,6 +1,6 @@
 # ZimaBlade server recipes
 
-Verified recipes for running a ZimaBlade (ZimaOS or CasaOS) like a server rather than an appliance: getting root through Docker, AppData backups that really include your certificates, and an offsite photo-library backup that uploads each original once.
+Verified recipes for running a ZimaBlade (ZimaOS or CasaOS) like a server rather than an appliance: getting root through Docker, AppData backups that really include your certificates, an offsite photo-library backup that uploads each original once, apps CasaOS can't remove, a safer Uptime Kuma, and a coldstore share on the array.
 
 ![A plain tar run as a non-root user: it prints "Permission denied" on a 0700 tls directory, exits 2, still writes appdata.tar.gz, and the listing shows tls/ is not in it](docs/plain-tar-trap.png)
 
@@ -17,6 +17,9 @@ ZimaOS is appliance-shaped on purpose: the root filesystem is read-only, the SSH
 - `verify-backup.sh` checks an archive four ways: gzip integrity, whether the root-only directories made it in, coverage against live AppData, and a restore rehearsal.
 - `remote-trigger.sh` runs the backup from another always-on machine over SSH, so nothing is installed on the Zima and there is no cron to enable. It can post pass or fail to a webhook.
 - **Recipe 02** and `photo-offsite-backup.sh` copy an Immich library offsite with `rclone copy` (never `sync`), originals only, after a database dump that refuses to replace a good dump with a bad one.
+- **Recipe 03** moves an app you can't afford to lose out of CasaOS into a plain `docker run` container, after CasaOS removed a dashboard twice.
+- **Recipe 04** runs Uptime Kuma on the `-slim` image, which drops the bundled Chromium that carried actively exploited CVEs, and covers watching the Zima from outside.
+- **Recipe 05** finds what is really filling a disk before you move anything, and sets up an NFS coldstore on the array that can't block another machine's boot.
 
 ## Screenshots
 
@@ -26,6 +29,8 @@ ZimaOS is appliance-shaped on purpose: the root filesystem is read-only, the SSH
 | The trap recipe 01 exists for, reproduced on 2026-10-08 with GNU tar 1.35 (the version ZimaOS ships) on a Linux box, as user `nobody`, against a sample `AppData` with one root-owned 0700 `tls` directory. Exit 2, an archive anyway, and no `tls/` inside. | `backup-appdata.sh --dry-run` on the author's ZimaBlade 7700, 2026-10-08. The SSH username is replaced with `<ssh-user>`. On this run every AppData directory was readable by the SSH user, so a plain tar would have missed nothing; that is not true on every box, which is why the dry run checks. |
 
 ## Quick start
+
+Full step-by-step setup, tested every week on a fresh machine: [docs/SETUP.md](docs/SETUP.md).
 
 You need a ZimaBlade, ZimaBoard or other ZimaOS / CasaOS box with SSH access, and an SSH user in the `docker` group (the default on ZimaOS).
 
@@ -60,6 +65,9 @@ Read the scripts before you run them, including these. `backup-appdata.sh` runs 
 | **[00 · Borrowing root from Docker](recipes/00-borrowing-root-from-docker.md)** | You need root on a box where `sudo` wants a password you don't have | A privileged container with the host filesystem mounted *is* root. Powerful, and worth understanding before you paste it |
 | **[01 · Backing up AppData properly](recipes/01-backing-up-appdata.md)** | Your app data: Immich's database, your certificates, your tokens | A plain `tar` exits 2 and **still writes the archive**. It looks fine and your certs aren't in it |
 | **[02 · Offsite backup for a photo library](recipes/02-offsite-photo-backup.md)** | Getting a large, irreplaceable photo library out of the house, affordably | `rclone sync` mirrors deletions: lose a photo locally and your backup deletes it too. And much of the library is regenerable |
+| **[03 · Apps CasaOS can't eat](recipes/03-apps-casaos-cant-eat.md)** | An app vanishing from CasaOS while its data survives | The second time, the compose file you'd restore from was gone too. A plain `docker run` with a restart policy has no app record to lose |
+| **[04 · Uptime Kuma on the Zima](recipes/04-uptime-kuma-on-the-zima.md)** | Monitoring on a small box, without a browser full of known-exploited bugs | The newer full image still shipped the same Chromium. `-slim` drops it and is a third of the size. And Kuma can't report its own host going down |
+| **[05 · Disk pressure, and a coldstore](recipes/05-disk-pressure-and-a-coldstore.md)** | A full disk, and where cold data should go | The space was Docker images, which can't live on NFS. The coldstore's first run freed 213 MB |
 
 ### The scripts
 
@@ -137,13 +145,16 @@ zimablade-recipes/
 ├── recipes/
 │   ├── 00-borrowing-root-from-docker.md
 │   ├── 01-backing-up-appdata.md
-│   └── 02-offsite-photo-backup.md
+│   ├── 02-offsite-photo-backup.md
+│   ├── 03-apps-casaos-cant-eat.md
+│   ├── 04-uptime-kuma-on-the-zima.md
+│   └── 05-disk-pressure-and-a-coldstore.md
 ├── scripts/
 │   ├── backup-appdata.sh         full AppData + app-definitions backup, --dry-run
 │   ├── verify-backup.sh          four checks on an archive
 │   ├── remote-trigger.sh         run the backup from another machine
 │   └── photo-offsite-backup.sh   Immich originals offsite, guarded DB dump
-├── docs/                         README images
+├── docs/                         SETUP.md (tested weekly) and images
 └── SUBMISSION.md                 notes from a 2026 ZimaSpace tutorial campaign entry
 ```
 

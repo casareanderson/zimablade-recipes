@@ -6,6 +6,7 @@ Verified recipes for running a ZimaBlade (ZimaOS or CasaOS) like a server rather
 
 [![Licence: MIT](https://img.shields.io/badge/licence-MIT-blue.svg)](LICENSE)
 ![Language: Bash](https://img.shields.io/badge/language-Bash-green.svg)
+[![Buy Me a Coffee](https://raw.githubusercontent.com/casareanderson/.github/main/badges/bmc-yellow.svg)](https://buymeacoffee.com/iamc_tech)
 
 ZimaOS is appliance-shaped on purpose: the root filesystem is read-only, the SSH user can't `sudo`, `cron` isn't enabled, and an OS update can replace anything you installed. That is why it is hard to break. It also means most homelab advice doesn't apply, and some of it fails quietly. These recipes work with that design instead of against it. They were written on a ZimaBlade 7700 running a photo library, a reverse proxy and single sign-on, and every command was run on that machine, including the attempts that turned out wrong.
 

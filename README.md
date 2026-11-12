@@ -184,3 +184,7 @@ MIT, see [LICENSE](LICENSE).
 ZimaBlade, ZimaBoard, ZimaOS and CasaOS are IceWhale products; this repo is not affiliated with them. The scripts use Docker's `alpine` image, rclone and Immich, each under its own licence.
 
 If this is useful to you, [buy me a coffee](https://buymeacoffee.com/iamc_tech) ☕
+
+---
+
+More homelab field notes: https://iamtech.cn1-lab.uk
